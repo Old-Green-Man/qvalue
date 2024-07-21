@@ -3,6 +3,8 @@ qvalue function that fixes the issue of misused splines in other versions.
 
 Other python versions of this available on the web do not properly estimate pi0 because they use splrep with s=0 (no smoothing). The pi0 estimate from these functions is simply the last pi0 value considered (which is usually a poor estimate) and the spline fitting does nothing. e.g.
 
+https://pypi.org/project/qvalue/
+
 https://github.com/nfusi/qvalue
 
 https://gist.github.com/ryananeff/0232597b04ec1e5947de2ad8b9292d6e
