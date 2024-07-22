@@ -29,6 +29,8 @@ After writing this function I noticed that the multipy package (https://github.c
 
 ![pi0_estimate](https://github.com/user-attachments/assets/4c54cc9f-8fae-4827-b02c-becf3590e8ca)
 
+![Figure_1](https://github.com/user-attachments/assets/bd57d730-32c6-499c-afed-8fa809d8df14)
+
 [1] Storey JD, Tibshirani R (2003): Statistical significance for genomewide
     studies. The Proceedings of the National Academy of the United States of
     America 100(16):9440-9445. DOI: 10.1073/pnas.1530509100
