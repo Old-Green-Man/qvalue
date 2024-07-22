@@ -2,6 +2,7 @@ import sys
 import scipy as sp
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.interpolate import UnivariateSpline
 
 def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   """
@@ -47,9 +48,8 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
     # the user has supplied an m
     m *= 1.0
 
-  pi0 = estimate_pi0(pv, m, pi0, plot=plot)
-
-  assert(pi0 >= 0 and pi0 <= 1), f'pi0 is not between 0 and 1: {pi0=:%f}'
+  # pi0 = estimate_pi0(pv, m, pi0, plot=plot)
+  pi0 = multipy_est_pi0(pv, m, plot=plot)
 
   p_ordered = np.argsort(pv)
   pv = pv[p_ordered]
@@ -64,6 +64,20 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   qv[p_ordered] = qv.copy() # same as input pv order
   qv = qv.reshape(original_shape) # reshape q-values to orginal shape of pv
   return qv, pi0
+
+def multipy_est_pi0(pvals, m, plot=False):
+  kappa = np.arange(0, 0.96, 0.01)
+  pik = [sum(pvals > k) / (m*(1-k)) for k in kappa]
+  cs = UnivariateSpline(kappa, pik, k=3, s=None, ext=0)
+  pi0 = float(cs(1.))
+  print(f'm={len(pvals):<5d} {pi0=:g}')
+  plt.title(f'#tests: {m} multipy pi0 estimate with spline')
+  plt.plot(kappa, pik, 'o' , markersize=2, label='pi0s')
+  kappa = np.arange(0, 1.01, 0.01)
+  plt.plot(kappa, cs(kappa))
+  plt.plot(1.0, pi0, 'o')
+  plt.show()
+  return pi0
 
 def estimate_pi0(pv, m, pi0=None, plot=False):
   # if the number of hypotheses is small, just set pi0 to 1
@@ -110,6 +124,9 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
       min_idx = idx
   pi0 = means[min_idx]
 
+  # print(f'<tr><td>{len(pv)}</td><td>{pi0:g}</td></tr>')
+  print(f'm={len(pv):<5d} {pi0=:g}')
+  
   if plot:
     fig, ax1 = plt.subplots()
     plt.title("Estimation of proportion of null hypotheses from p-values");
@@ -129,7 +146,7 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
     plt.show()
 
 
-  if pi0 > 1:
+  if pi0 > 1 or pi0 <= 0:
     pi0 = 1.0
 
   return pi0
