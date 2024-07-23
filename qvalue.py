@@ -1,8 +1,7 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-# import scipy
-from scipy.interpolate import UnivariateSpline
+# from scipy.interpolate import UnivariateSpline
 
 def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   """
