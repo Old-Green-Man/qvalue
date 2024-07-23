@@ -6,6 +6,15 @@ import matplotlib.pyplot as plt
 
 def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   """
+  Estimates q-values from p-values based on Storey and Tibshirani, 2003
+  Args
+  =====
+  pi0:     If None, it's estimated based on principles discussed in Storey and Tibshirani, 2003, but see below.
+  m:       Number of tests. If not specified m = pv.size
+  verbose: Print verbose messages? Not currently used. (default False)
+
+  returns 1. a numpy array of q-values with the same shape and order as the input p-values, and 2. the pi0 estimate
+
   NOTE: Other python versions of this available on the web do not properly
   estimate pi0 because they use splrep with s=0 (no smoothing). The pi0 estimate
   from these functions is simply the last pi0 value considered (which is usually
@@ -27,25 +36,17 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   least once, to see what the distribution looks like. If for some reason it
   seems off you can try providing your own pi0 with the pi0=my_pi0 option. A higher pi0
   will give more conservative q-value estimates.
-
-  Estimates q-values from p-values
-  Args
-  =====
-  pi0: if None, it's estimated based on principles discussed in Storey and Tibshirani, 2003.
-  m: number of tests. If not specified m = pv.size
-  verbose: print verbose messages? (default False)
-
-  returns 1. a numpy array of q-values with the same shape and order as the input p-values, and 2. the pi0 estimate
   """
+
+  pv = np.asarray(pv)
   assert(pv.min() >= 0 and pv.max() <= 1), "p-values should be between 0 and 1"
 
   original_shape = pv.shape
-  pv = pv.ravel()  # flattens the array in place, more efficient than flatten()
+  pv = pv.ravel() # flatten
 
   if m is None:
     m = float(len(pv))
-  else:
-    # the user has supplied an m
+  else: # user specified
     m *= 1.0
 
   pi0 = estimate_pi0(pv, m, pi0, plot=plot)
@@ -56,7 +57,7 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
 
   p_ordered = np.argsort(pv)
   pv = pv[p_ordered]
-  qv = pi0 * m / len(pv) * pv # This is there the q-values are calculated
+  qv = pi0 * m / len(pv) * pv # This is where the q-values are calculated
   qv[-1] = min(qv[-1], 1.0)
 
   # The following ensures that lower ranking q-values are no larger than those
@@ -97,7 +98,7 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
   counts = np.array([(pv > pvalue).sum() for pvalue in lam])
 
   for idx in range(lam_len):
-    if counts[idx] == 0:
+    if counts[idx] == 0: # stop when we have no pvalues larger than this lambda
       break
     pi0s.append( counts[idx] / (m * (1 - lam[idx])) )
 
@@ -108,11 +109,17 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
   # approaches 1. It is probably wise to always inspect the plot to make sure
   # the estimate looks reasonable given the data.
   pi0s_len = len(pi0s)
-  if pi0s_len < int(lam_len * 0.75):
-    print(f'warning: there were no p-values > ~0.75. Estimate of pi0 is probably overly convervative. It is strongly advised to look at the plot to determine of the pi0 value looks reasonable or provide your own pi0. Also consider another method for estimating the false discovery rate.', file=sys.stderr)
-    sd_range = range(pi0s_len - 1)
-  else:
-    sd_range = range(int(lam_len * 0.6), min(int(lam_len * 0.95), pi0s_len - 1))
+  # The commented out section was where I was trying to start at higher lambda
+  # values so I wouldn't have to calculate as many standard deviations. However,
+  # it's probably safer to just consider all the lambdas. Samples that have very
+  # few non-null tests (pi0 close to 1) will have better fits toward lambda = 0.
+  
+  # if pi0s_len < int(lam_len * 0.75):
+  #   print(f'warning: there were no p-values > ~0.75. Estimate of pi0 is probably overly convervative. It is strongly advised to look at the plot to determine of the pi0 value looks reasonable or provide your own pi0. Also consider another method for estimating the false discovery rate.', file=sys.stderr)
+  #   sd_range = range(pi0s_len - 1)
+  # else:
+  #   sd_range = range(int(lam_len * 0.6), min(int(lam_len * 0.95), pi0s_len - 1))
+  sd_range = range(min(int(lam_len * 0.90), pi0s_len - 5))
   if pi0s_len < lam_len:
     lam = np.delete(lam, range(pi0s_len, lam_len))
   stdev = {}

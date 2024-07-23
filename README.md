@@ -1,7 +1,7 @@
 # qvalue
 Storey[1] qvalue function that fixes the issue of misused splines in other versions.
 
-Other python versions of this available on the web do not properly estimate pi0 because they use splrep with s=0 (no smoothing). The pi0 estimate from these functions is simply the last pi0 value considered (which is usually a poor estimate) and the spline fitting does nothing. e.g.
+Other python versions of this available on the web do not properly estimate pi0 because they use scipy.interpolate.splrep with s=0 (no smoothing). The pi0 estimate from these functions is simply the last pi0 value considered (which is usually a poor estimate) and the spline fitting does nothing. e.g.
 
 https://pypi.org/project/qvalue/
 
@@ -11,7 +11,9 @@ https://gist.github.com/ryananeff/0232597b04ec1e5947de2ad8b9292d6e
   
 Here, instead of splines, we are calculating the standard deviations of the pi0s > lambda. Since the pi0s tend to flatten out as lambda approaches 1 the standard deviation will tend to be at a minimum at the lambda where the pi0s converge to the null proportion. The pi0 is taken as the mean of the pi0s > lambda where the standard deviation is at a minimum. Below is a graphical illustration. The input data here are 28,884 t-test p-values from a differential rna-seq experiment. If the number of input p-values is less then 100 then pi0 is set to 1.0 which is too conservative. For such smaller datasets either determine a reasonable pi0 independently or use another method such as scipy.stats.false_discovery_control. The table below shows the estimates of pi0 when taking random subsamples from the 28,884 p-values in the plot below. Samples below ~2,000 can give more variable estimates. Visual inspection of plots for these subsets showed that the pi0 estimates were all positioned where one would intuitively expect the pi0s to converge. A dataset with a higher underlying pi0 (proportion of true null hypotheses) should be more stable at lower sample sizes.
 
-After writing this function I noticed that the multipy package (https://github.com/puolival/multipy) includes a qvalue function that uses a UnivariateSpline to smooth the curve (As opposed to those above that attempt to use splrep without smoothing, which accomplishes nothing.). Using the identical subsamples as tested with our method, we calculated pi0 estimates with the multipy method and added them to the table below for comparison. It is clear that these UnivariateSpline estimates are much less stable and it's also clear, by comparing to the plot below, that the estimate for all 28,884 (0.171282) is much too low and would give overly optimistic qvalue estimates. The final plot below shows the spline used to estimate its pi0. The green dot at x=1 is the value of the spline curve used to estimate pi0.
+After writing this function I noticed that the multipy package (https://github.com/puolival/multipy) includes a qvalue function that uses scipy.interpolate.UnivariateSpline to smooth the curve (As opposed to those above that attempt to use scipy.interpolate.splrep without smoothing, which accomplishes nothing). Using the identical subsamples as tested with our method, we calculated pi0 estimates with the multipy method and added them to the table below for comparison. It is clear that these UnivariateSpline estimates are much less stable and it's also clear, by comparing to the plot below, that the estimate for all 28,884 (0.171282) is much too low and would give overly optimistic qvalue estimates. The second plot below shows the spline used to estimate its pi0. The green dot at x=1 is the value of the spline curve used to estimate pi0.
+
+We tested our method samples generated with np.random.normal to test p-values with different underlying proportion of true null tests. For example, when both samples are generated with np.random.normal(0, 1, size=1000) then the pi0 estimate was always very close to 1.0. The final plot below shows the pi0 estimate from 25,000 tests where in 75% of them both samples were generated with np.random.normal(0, 1, size=1000) and 25% where one had a mean of 0.1, np.random.normal(0.1, 1, size=1000). The pi0 estimate here is 0.776 compared to the underlying 0.75.
 
 <table>
   <caption><b>Variance of pi0 estimates as a function of sample size.</b></caption>
@@ -27,9 +29,11 @@ After writing this function I noticed that the multipy package (https://github.c
   <tr><td>28884</td><td>0.255432</td><td>0.171282</td></tr>
 </table>
 
-![pi0_estimate](https://github.com/user-attachments/assets/4c54cc9f-8fae-4827-b02c-becf3590e8ca)
+![pi0_estimate](images/pi0_estimate.png)
 
-![Figure_1](https://github.com/user-attachments/assets/95037986-e5f3-467b-9663-95281fc6a670)
+![multipy_spline](images/multipy_spline.png)
+
+![pi0_75](images/pi0_75.png)
 
 [1] Storey JD, Tibshirani R (2003): Statistical significance for genomewide
     studies. The Proceedings of the National Academy of the United States of
