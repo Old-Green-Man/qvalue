@@ -33,7 +33,7 @@ After writing this function I noticed that the multipy package (https://github.c
 
 We tested our method with samples generated with np.random.normal to test p-values with different underlying proportion of true null tests. For example, when both samples are generated with np.random.normal(0, 1, size=1000) then the pi0 estimate was always very close to 1.0. The plot below shows the pi0 estimate from 25,000 tests where, in 75% of them, both samples were generated with np.random.normal(0, 1, size=1000) and 25% where one had a mean of 0.1, np.random.normal(0.1, 1, size=1000). The pi0 estimate here is 0.776 compared to the underlying 0.75.
 
-In looking at randomly generated normal distributions, both our standard deviation method and the UnivariateSpline method greatly overestimate pi0 when the magnitude of the differences in means is small relative to the standard deviation of the normal distribution and/or the number of samples drawn for each test is small. For tests where means differ sufficiently and enough samples are used, the standard deviation method tends to be a bit conservative and the spline method a bit optimistic.
+In looking at randomly generated normal distributions, both our standard deviation method and the UnivariateSpline method greatly overestimate pi0 when the magnitude of the differences in means is small relative to the standard deviation of the normal distribution and/or the number of samples drawn for each test is small. For tests where means differ sufficiently and enough samples are used, the standard deviation method tends to be a bit conservative (with respect to resulting q-values) and the spline method a bit optimistic.
 
 ![pi0_75](images/pi0_75.png)
 
