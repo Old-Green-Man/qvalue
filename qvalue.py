@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 # import scipy
-# from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import UnivariateSpline
 
 def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   """
@@ -53,6 +53,7 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   # for pwr in range(-10, 11):
   #   Note: s=None is used in multipy
   #   pi0 = multipy_est_pi0(pv, m, s=2**pwr, plot=plot)
+  pi0 = multipy_est_pi0(pv, m, plot=plot)
   
 
   p_ordered = np.argsort(pv)
@@ -69,19 +70,19 @@ def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   qv = qv.reshape(original_shape) # reshape q-values to orginal shape of pv
   return qv, pi0
 
-# def multipy_est_pi0(pvals, m, s=None, plot=False):
-#   kappa = np.arange(0, 0.96, 0.01)
-#   pik = [sum(pvals > k) / (m*(1-k)) for k in kappa]
-#   cs = UnivariateSpline(kappa, pik, k=3, s=s, ext=0)
-#   pi0 = float(cs(1.))
-#   print(f'm={len(pvals):<5d} {pi0=:g}')
-#   plt.title(f'#tests: {m} {s=} multipy pi0 estimate with spline')
-#   plt.plot(kappa, pik, 'o' , markersize=2, label='pi0s')
-#   kappa = np.arange(0, 1.01, 0.01)
-#   plt.plot(kappa, cs(kappa))
-#   plt.plot(1.0, pi0, 'o')
-#   plt.show()
-#   return pi0
+def multipy_est_pi0(pvals, m, s=None, plot=False):
+  kappa = np.arange(0, 0.96, 0.01)
+  pik = [sum(pvals > k) / (m*(1-k)) for k in kappa]
+  cs = UnivariateSpline(kappa, pik, k=3, s=s, ext=0)
+  pi0 = float(cs(1.))
+  print(f'm={len(pvals):<5d} {pi0=:g}')
+  plt.title(f'# tests: {m:.0f} {s=} multipy {pi0=:g} estimate with spline')
+  plt.plot(kappa, pik, 'o' , markersize=2, label='pi0s')
+  kappa = np.arange(0, 1.01, 0.01)
+  plt.plot(kappa, cs(kappa))
+  plt.plot(1.0, pi0, 'o')
+  plt.show()
+  return pi0
 
 def estimate_pi0(pv, m, pi0=None, plot=False):
   # if the number of hypotheses is small, just set pi0 to 1
@@ -144,7 +145,7 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
     ax1.set_ylabel(r'pi0s = #p$_j$>λ / m(1-λ) (proportion null)')
     p1 = ax1.plot(lam, pi0s, 'o', markersize=2, label=f'pi0s')
     p2 = ax1.plot(lam[list(means.keys())], list(means.values()), label=f'means')
-    p3 = ax1.plot([0, 0.95], [pi0, pi0], label=f'pi0 est={pi0:g}')
+    p3 = ax1.plot([0, 0.95], [pi0, pi0], label=f'pi0 est={counts[min_idx]}/({m:.0f}*(1-{lam[min_idx]}))={pi0:g}')
     p4 = ax1.plot([lam[min_idx], lam[min_idx]], [pi0, 1], label='min stdev')
     ax2 = ax1.twinx()
     ax2.set_ylabel('std dev of pi0s > λ')
