@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-# from scipy.interpolate import UnivariateSpline
 
 def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
   """
@@ -163,6 +162,7 @@ def estimate_pi0(pv, m, pi0=None, plot=False):
 
 # For testing the spline method of estimating pi0
 def multipy_est_pi0(pvals, m, s=None, plot=False):
+  from scipy.interpolate import UnivariateSpline
   kappa = np.arange(0, 0.96, 0.01)
   pik = [sum(pvals > k) / (m*(1-k)) for k in kappa]
   cs = UnivariateSpline(kappa, pik, k=3, s=s, ext=0)
