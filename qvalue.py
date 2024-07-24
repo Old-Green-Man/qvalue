@@ -3,8 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def qvalue(pv, pi0=None, m=None, plot=False, verbose=False):
-  """
-  Estimates q-values from p-values based on Storey and Tibshirani, 2003
+  """Estimates q-values from p-values based on Storey and Tibshirani, 2003
   Args
   =====
   pv:      array of p-values
@@ -13,29 +12,24 @@ def qvalue(pv, pi0=None, m=None, plot=False, verbose=False):
   plot:    If True and pi0=None, display a plot showing how pi0 was estimated.
   verbose: Print verbose messages? Not currently used. (default False)
 
-  returns 1. a numpy array of q-values with the same shape and order as the input p-values, and 2. the pi0 estimate
+  returns qv, pi0
+    qv:  a numpy array of q-values with the same shape and order as the input p-values
+    pi0: the pi0 estimate
 
-  NOTE: Other python versions of this available on the web do not properly
-  estimate pi0 because they use splrep with s=0 (no smoothing). The pi0 estimate
-  from these functions is simply the last pi0 value considered (which is usually
-  a poor estimate) and the spline fitting does nothing. e.g.
+  This was written because other python versions of this function were not
+  properly estimating pi0. See
+  https://github.com/Old-Green-Man/qvalue/blob/main/README.md for more
+  information.
 
-  https://pypi.org/project/qvalue/
-  https://github.com/nfusi/qvalue
-  https://gist.github.com/ryananeff/0232597b04ec1e5947de2ad8b9292d6e
-  
-  Here, instead of splines, we are calculating the standard deviations of the
-  pi0s > lambda. Since the pi0s tend to flatten out as lambda approaches 1 the
-  standard deviation tends to be at a minimum at the lambda where the pi0s
-  converge to the null proportion. The pi0 is taken as the mean of the pi0s >
-  lambda where the standard deviation is at a minimum. See
-  https://github.com/Old-Green-Man/qvalue/blob/main/README.md for a graphical
-  illustration.
+  It is probably a good idea to call this with plot=True on your p-values, at
+  least once, to see what the distribution of pi0s looks like. If for some
+  reason it seems off you can try providing your own pi0 with the pi0 function
+  option. A higher pi0 will give more conservative q-value estimates. The plot
+  should give you an idea if you can make a reasonable estimate of pi0 or
+  not. Some sets of p-values can give noisy plots where it's hard to know what
+  the pi0 should be. In such cases you could try a very conservative (higher)
+  pi0 or try another FDR method such as scipy.stats.false_discovery_control.
 
-  It is probably a good idea to call this with plot=True on your p-values at
-  least once, to see what the distribution looks like. If for some reason it
-  seems off you can try providing your own pi0 with the pi0=my_pi0 option. A higher pi0
-  will give more conservative q-value estimates.
   """
 
   pv = np.asarray(pv)
