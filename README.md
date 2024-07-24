@@ -27,6 +27,7 @@ Here, instead of splines, we are calculating the standard deviations of the pi0s
 
 ![pi0_estimate](images/pi0_estimate.png)
 
+
 After writing this function I noticed that the multipy package (https://github.com/puolival/multipy) includes a qvalue function that uses scipy.interpolate.UnivariateSpline to smooth the curve (As opposed to those above that attempt to use scipy.interpolate.splrep without smoothing, which accomplishes nothing). Using the identical subsamples as tested with our method, we calculated pi0 estimates with the multipy method and added them to the table above for comparison. It is clear that these UnivariateSpline estimates are much less stable and it's also clear, by comparing to the plot above, that the estimate for all 28,884 (0.171282) is much lower and may give overly optimistic qvalue estimates. The second plot below shows the spline used to estimate its pi0. The green dot at x=1 is the value of the spline curve used to estimate pi0.
 
 ![multipy_spline](images/multipy_spline.png)
