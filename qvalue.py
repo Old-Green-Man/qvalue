@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def qvalue(pv, pi0=None, m=None, plot=False, verbose=False):
-  """Estimates q-values from p-values based on Storey and Tibshirani, 2003
+  """
+  Estimates q-values from p-values based on Storey and Tibshirani, 2003
+
   Args
   =====
   pv:      array of p-values
