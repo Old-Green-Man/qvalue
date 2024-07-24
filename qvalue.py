@@ -2,13 +2,15 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-def qvalue(pv, pi0=None, m=None, verbose=False, plot=False):
+def qvalue(pv, pi0=None, m=None, plot=False, verbose=False):
   """
   Estimates q-values from p-values based on Storey and Tibshirani, 2003
   Args
   =====
+  pv:      array of p-values
   pi0:     If None, it's estimated based on principles discussed in Storey and Tibshirani, 2003, but see below.
   m:       Number of tests. If not specified m = pv.size
+  plot:    If True and pi0=None, display a plot showing how pi0 was estimated.
   verbose: Print verbose messages? Not currently used. (default False)
 
   returns 1. a numpy array of q-values with the same shape and order as the input p-values, and 2. the pi0 estimate
